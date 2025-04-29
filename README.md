@@ -1,12 +1,13 @@
 # OR-Tools Vendor Build for Heroku-24
 
-This repository contains the necessary files to build Google OR-Tools C++ library for Ubuntu 24.04 (Heroku-24 stack) and prepare it for use as a vendored dependency in a Rails application.
+This repository contains the necessary files to build Google OR-Tools C++ library for Ubuntu 24.04 (Heroku-24 stack) and prepare it for use as a vendored dependency in a Rails application. This build is specifically configured for use with the [or-tools-ruby](https://github.com/ankane/or-tools-ruby) gem.
 
 ## Prerequisites
 
 - Docker installed on your local machine
 - Basic understanding of Docker commands
 - Access to a terminal/shell
+- Ruby 2.7+ (for or-tools-ruby gem compatibility)
 
 ## Quick Start for Heroku Rails Applications
 
@@ -37,17 +38,22 @@ This repository contains the necessary files to build Google OR-Tools C++ librar
    echo "vendor/or-tools/" >> .gitignore
    ```
 
-4. Configure bundler to use the vendored OR-Tools:
+4. Add the or-tools-ruby gem to your Gemfile:
+   ```ruby
+   gem 'or-tools'
+   ```
+
+5. Configure bundler to use the vendored OR-Tools:
    ```bash
    bundle config --local build.or-tools --with-or-tools-dir=vendor/or-tools
    ```
 
-5. Add the or-tools gem to your Gemfile:
-   ```ruby
-   gem 'or-tools-engine'  # Or whatever OR-Tools gem you're using
+6. Install the gem with vendored build:
+   ```bash
+   bundle install
    ```
 
-6. Deploy to Heroku:
+7. Deploy to Heroku:
    ```bash
    git add .
    git commit -m "Add OR-Tools vendor configuration"
@@ -67,6 +73,7 @@ Pros:
 - Simple setup
 - Works reliably
 - No special buildpacks needed
+- Compatible with or-tools-ruby gem's vendored build requirements
 
 Cons:
 - Increases slug size
@@ -130,10 +137,23 @@ If you need to build the artifacts yourself:
 
 ## Notes
 
-- The build process uses OR-Tools version v9.10 by default. If you need a different version, modify the `Dockerfile` accordingly.
+- The build process uses OR-Tools version v9.10 by default, which matches the or-tools-ruby gem's requirements.
 - The build artifacts include both the compiled libraries (`lib/`) and header files (`include/`).
 - The build artifacts are automatically ignored by git (see .gitignore).
 - You should add the `vendor/or-tools` directory to your application's .gitignore to avoid committing large binary files.
+- This build includes all necessary dependencies for the or-tools-ruby gem:
+  - Coin-OR libraries (CBC, CGL, CLP, etc.)
+  - HiGHS solver
+  - SCIP solver
+  - Abseil libraries
+  - Protobuf
+  - Eigen3 (for linear algebra)
+  - Gflags (for command-line flags)
+  - Zlib (for compression)
+  - LAPACK (for linear algebra)
+  - BLAS (for basic linear algebra)
+
+Note: Glog (Google Logging Library) is not currently included in the build as it's not required by the or-tools-ruby gem. It could be added in the future if needed by adding `libgoogle-glog-dev` to the Dockerfile's package list.
 
 ## Troubleshooting
 
@@ -147,4 +167,8 @@ If you encounter any issues:
    - Check your slug size (`heroku slugs`)
    - Verify the artifacts are in the correct location (`heroku run ls -la vendor/or-tools`)
    - Check build logs for any compilation errors
-   - Ensure you're using the Heroku-24 stack (`heroku stack:set heroku-24`) 
+   - Ensure you're using the Heroku-24 stack (`heroku stack:set heroku-24`)
+6. For or-tools-ruby specific issues:
+   - Check the gem's [documentation](https://github.com/ankane/or-tools-ruby)
+   - Verify the vendored build configuration matches the gem's requirements
+   - Ensure all required dependencies are present in the vendor directory 
