@@ -18,7 +18,7 @@ This repository contains the necessary files to build Google OR-Tools C++ librar
 
 2. Build the Docker image:
    ```bash
-   docker build -t or-tools-builder .
+   docker build -t or-tools-heroku-vendor .
    ```
 
 ## Extracting Build Artifacts
@@ -27,10 +27,10 @@ After building the Docker image, you can extract the build artifacts using:
 
 ```bash
 # Create a container from the image
-docker create --name or-tools-container or-tools-builder
+docker create --name or-tools-container or-tools-heroku-vendor
 
 # Copy the build artifacts to your local machine
-docker cp or-tools-container:/output ./vendor/or-tools
+docker cp or-tools-container:/artifacts/. ./vendor/or-tools/
 
 # Clean up the container
 docker rm or-tools-container
@@ -63,9 +63,10 @@ This script will:
 
 ## Notes
 
-- The build process uses OR-Tools version v9.8 by default. If you need a different version, modify the `Dockerfile` accordingly.
+- The build process uses OR-Tools version v9.10 by default. If you need a different version, modify the `Dockerfile` accordingly.
 - The build artifacts include both the compiled libraries (`lib/`) and header files (`include/`).
-- Make sure to commit the `vendor/or-tools` directory to your repository to ensure it's available during deployment.
+- The build artifacts are automatically ignored by git (see .gitignore).
+- You should add the `vendor/or-tools` directory to your application's .gitignore to avoid committing large binary files.
 
 ## Troubleshooting
 
