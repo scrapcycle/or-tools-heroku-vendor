@@ -5,20 +5,19 @@ set -e
 
 # Build the Docker image
 echo "Building Docker image..."
-docker build -t or-tools-builder .
+docker build -t or-tools-heroku-vendor .
+
+# Create output directory
+mkdir -p vendor/or-tools
 
 # Create a container from the image
 echo "Creating container..."
-docker create --name or-tools-container or-tools-builder
-
-# Create vendor directory if it doesn't exist
-mkdir -p vendor
+docker create --name or-tools-container or-tools-heroku-vendor
 
 # Copy the build artifacts
 echo "Extracting build artifacts..."
-docker cp or-tools-container:/output ./vendor/or-tools
+docker cp or-tools-container:/artifacts/. vendor/or-tools/
 
-# Clean up
 echo "Cleaning up..."
 docker rm or-tools-container
 

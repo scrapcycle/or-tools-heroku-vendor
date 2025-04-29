@@ -122,5 +122,10 @@ RUN cd /opt/or-tools && \
     make install && \
     ldconfig
 
-# Set output as a volume for easy docker cp
-VOLUME ["/output"]
+# Create artifacts directory and copy files
+RUN mkdir -p /artifacts && \
+    cp -r /usr/local/lib/* /artifacts/ && \
+    cp -r /usr/local/include/* /artifacts/
+
+# Set artifacts as a volume for easy access
+VOLUME ["/artifacts"]
